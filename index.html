@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <style>
+    .activity-range {
+      width: 300px;
+      height: 32px;
+      background-color: #a7a7a7;
+      text-align: center;
+    }
+    .bonus-range {
+      width: 100px;
+      height: 32px;
+      margin: 0 auto;
+      background-color: brown;
+    }
+    .star {
+      display: none;
+      position: relative;
+      width: 30px;
+    }
+    .moving-star {
+      display: inline;
+      animation-name: moving;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+    @keyframes moving {
+      0% {left: -130px; animation-timing-function: linear;}
+      50% {left: 130px; animation-timing-function: linear;}
+      100% {left: -130px; animation-timing-function: linear;}
+    }
+  </style>
+</head>
+<body>
+  <div id="abc">
+    {{ text }}
+    <h2 v-if="count >= 0">{{ count }}</h2>
+    <h2 v-else>{{ countReady }}</h2>
+    <div ref="container" class="activity-range">
+      <div class="bonus-range">
+        <img ref="image" src="./star_img.png" :class="starClasses">
+      </div>
+    </div>
+    <button @click="start">{{ startText }}</button>
+    <button @click="cancel">{{ cancelText }}</button>
+    <button @click="getImagePosition">{{ recordText }}</button>
+    <div class="">{{ starCatchResult }}</div>
+  </div>
+  
+</body>
+<script>
+  new Vue({
+  el: "#abc",
+  data: {
+    text: "Hello World!",
+    count: -1,
+    countReady: "준비",
+    startText: "강화",
+    cancelText: "취소",
+    recordText: "기록",
+    isActive: false,
+    defaultClass: "star",
+    addedClass: "moving-star",
+    starCatchResult: ""
+  },
+  computed: {
+    starClasses() {
+      return {
+        [this.defaultClass]: true,
+        [this.addedClass]: this.isActive
+      }
+    }
+  },
+  methods: {
+    start: function() {
+      this.text = "두근두근";
+      this.isActive = true;
+      this.count = 5;
+      this.countdownTimer = setInterval(() => {
+        this.count--;
+        this.getImagePosition();
+        if (this.count == -1) {
+          clearInterval(this.countdownTimer);
+          this.cancel();
+        }
+      }, 1000);
+    },
+    cancel: function() {
+      this.isActive = false;
+    },
+    getImagePosition: function() {
+      const container = this.$refs.container;
+      const image = this.$refs.image;
+
+      const containerRect = container.getBoundingClientRect();
+      const imageRect = image.getBoundingClientRect();
+
+      const x = imageRect.left - containerRect.left + 15;
+
+      console.log('Image position (x, y):', x);
+    }
+  },
+  beforeDestroy() {
+    clearInterval(this.countdownTimer);
+  }
+})
+</script>
+</html>
