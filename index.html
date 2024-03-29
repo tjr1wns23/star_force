@@ -46,28 +46,25 @@
         <img ref="image" src="./star_img.png" :class="starClasses">
       </div>
     </div>
-    <button @click="start">{{ startText }}</button>
-    <button @click="cancel">{{ cancelText }}</button>
-    <button @click="getImagePosition">{{ recordText }}</button>
+    <button @click="start">강화</button>
+    <button @click="cancel">취소</button>
+    <button @click="getImagePosition">기록</button>
+    <button @click="removeResults">기록삭제</button>
     <div class="">{{ starCatchResult }}</div>
-    plez....
   </div>
   
 </body>
 <script>
-  new Vue({
+  const enforceVue = new Vue({
   el: "#abc",
   data: {
     text: "Hello World!",
     count: -1,
     countReady: "준비",
-    startText: "강화",
-    cancelText: "취소",
-    recordText: "기록",
     isActive: false,
     defaultClass: "star",
     addedClass: "moving-star",
-    starCatchResult: "결과"
+    starCatchResult: ""
   },
   computed: {
     starClasses() {
@@ -84,15 +81,18 @@
       this.count = 5;
       this.countdownTimer = setInterval(() => {
         this.count--;
-        this.getImagePosition();
         if (this.count == -1) {
-          clearInterval(this.countdownTimer);
           this.cancel();
         }
       }, 1000);
     },
     cancel: function() {
       this.isActive = false;
+      clearInterval(this.countdownTimer);
+      this.count = -1;
+    },
+    removeResults: function() {
+      this.starCatchResult="";
     },
     getImagePosition: function() {
       const container = this.$refs.container;
@@ -102,12 +102,20 @@
       const imageRect = image.getBoundingClientRect();
 
       const x = imageRect.left - containerRect.left + 15;
+      let result = x > 100 && Math.round(x) < 200 ? "(성공!)\n" : "(실패!)\n";
 
-      console.log('Image position (x, y):', x);
+      this.starCatchResult += Math.round(x)+result;
     }
   },
   beforeDestroy() {
-    clearInterval(this.countdownTimer);
+    this.cancel();
+  }
+})
+
+document.addEventListener('keydown',function(e) {
+  if (e.keyCode === 32) {
+    e.preventDefault();
+    enforceVue.getImagePosition();
   }
 })
 </script>
